@@ -1,14 +1,16 @@
-- name: install apache
+- name: Install Apache
   ansible.builtin.package:
     name: apache2
     state: present
 
-- name: apache - config
+- name: Add Apache config
   template:
     src: templates/000-default.conf
     dest: /etc/apache2/sites-available/000-default.conf
   notify: restart apache
 
-- name: print
-  debug:
-    msg: "{{ansible_all_ipv4_addresses}}"
+- name: Update Apache to latest version
+  ansible.builtin.apt:
+    name: "apache2"
+    state: latest
+  notify: restart apache
