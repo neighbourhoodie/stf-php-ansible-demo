@@ -36,7 +36,19 @@ Run Ansible as follows:
 ansible-playbook -i inventory/demo test.yml
 ```
 
+## Using encrypted vars
+1. create file `EDITOR=nano ansible-vault create inventory/demo/group_vars/all.yml`
+2. edit file `EDITOR=nano ansible-vault edit inventory/demo/group_vars/all.yml`
+
+(Password was added by the create command: - 123)
+
+Now the playbook run is:
+```bash
+ansible-playbook -i inventory/demo test.yml --ask-vault-pass
+```
+
 The demo achieves the following:
 
 - Ansible is configured to operate through `jumphost` server to connect to the two property host servers.
 - Ansible [role](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_reuse_roles.html) are set up to run a groups of similar tasks.
+- Usage of encrypted variables
