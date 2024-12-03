@@ -1,0 +1,47 @@
+- name: Install Google Authenticator
+  ansible.builtin.package:
+    name: libpam-google-authenticator
+    state: present
+    update_cache: yes
+
+# Enable Google Authenticator for SSH
+# - name: Add SSH PAM config
+#   template:
+#     src: templates/ssh_pam_config
+#     dest: /etc/pam.d/sshd
+#   notify: restart ssh
+
+# # Configure SSH to Allow 2FA
+# - name: Allow PAM authentication
+#   template:
+#     src: templates/sshd_config
+#     dest: /etc/ssh/sshd_config
+#   notify: restart ssh
+
+# Extract user name from file and set a var: user: { name: 'name', file: '.google_authenticator' }
+- name: initialise users
+  set_fact:
+    users: "{{ users | default([]) + [ { 'name': (item | basename | regex_replace('\\.google_authenticator', '')) , 'file': item } ] }}"
+  with_fileglob:
+    - ../templates/*.google_authenticator
+
+- name: Create user for each google auth file
+  user:
+    name: "{{ item.name }}"
+    create_home: yes
+  with_items: "{{ users }}"
+
+
+- name: Copy user's .google_authenticator files to homedirs
+  template:
+    src: "{{ item.file }}"
+    dest: "/home/{{ item.name }}/.google_authenticator"
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+    mode: '0600'
+  with_items: "{{ users }}"
+
+- name: create authorized_keys
+  template:
+    src: templates/authorized_keys
+    dest: /ninette/.ssh/authorized_keys

@@ -1,9 +1,9 @@
 - hosts:
-  # - all
   - service
   # root because we want to install software on the machines
   remote_user: root
 
   roles:
-    - role: httpd
-      tags: [httpd]
+    # - role: httpd
+    #   tags: [httpd]
+    - role: google_auth
